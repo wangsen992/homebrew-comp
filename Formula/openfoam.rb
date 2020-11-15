@@ -8,7 +8,23 @@ class Openfoam < Formula
   sha256 "07f0514e9f6f667902502b1a2e32a171e09c1dfce4fb2a2df598e6e2f4021b48"
   license ""
 
-  # depends_on "cmake" => :build
+  # Third-party requirements
+  depends_on "boost" 
+  depends_on "cgal" 
+  depends_on "fftw" 
+  depends_on "scotch" 
+  depends_on "hypre" 
+  depends_on "cgns" 
+  depends_on "gperftools" 
+
+  # Parallel processing
+  depends_on "open-mpi" 
+  depends_on "adios2" 
+  depends_on "scotch" 
+  depends_on "kahip" 
+  depends_on "metis" 
+
+  depends_on "cmake" => :build
 
   def install
     # ENV.deparallelize  # if your formula fails when building in parallel
