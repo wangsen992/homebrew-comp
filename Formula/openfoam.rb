@@ -1,7 +1,7 @@
 # Documentation: https://docs.brew.sh/Formula-Cookbook
 #                https://rubydoc.brew.sh/Formula
 # PLEASE REMOVE ALL GENERATED COMMENTS BEFORE SUBMITTING YOUR PULL REQUEST!
-class OpenFOAM < Formula
+class Openfoam < Formula
   desc "OpenFOAM is a free, open source CFD software with an extensive range of features to solve anything from complex fluid flows"
   homepage "https://www.openfoam.com/"
   url "https://develop.openfoam.com/Development/openfoam/-/archive/OpenFOAM-v2006/openfoam-OpenFOAM-v2006.tar.gz"
