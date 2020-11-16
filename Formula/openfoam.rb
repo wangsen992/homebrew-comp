@@ -11,17 +11,16 @@ class Openfoam < Formula
   # Third-party requirements
   depends_on "boost" 
   depends_on "cgal" 
-  depends_on "fftw" 
-  depends_on "scotch" 
   depends_on "hypre" 
   depends_on "cgns" 
   depends_on "gperftools" 
 
   # Parallel processing
-  depends_on "open-mpi" 
-  depends_on "adios2" 
-  depends_on "scotch" 
-  depends_on "kahip" 
+  depends_on "open-mpi" # already satisfied for building fftw
+  depends_on "fftw" 
+  depends_on "adios2" # Different C++ standard, build with -s => successful
+  depends_on "brewsci-scotch" 
+  depends_on "kahip"  # Different C++ standard, with -s, it states gmp has the same issue (ignored for now)
   depends_on "metis" 
 
   depends_on "cmake" => :build
