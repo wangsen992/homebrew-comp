@@ -65,7 +65,7 @@ class Openfoam < Formula
     # NOTE: and include_path
     ENV['CPATH'] = "#{HOMEBREW_PREFIX}/include"
     ENV['PATH'] = "#{HOMEBREW_PREFIX}/bin:" + ENV['PATH']
-    system "#{prefix}/Allwmake"
+    system "#{prefix}/Allwmake -j"
     # system "cmake", ".", *std_cmake_args
   end
 
