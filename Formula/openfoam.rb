@@ -56,6 +56,8 @@ class Openfoam < Formula
     # Need the header files, tutorials, executables. 
     prefix.mkpath
     prefix.install Dir["*"]
+
+    # Override WM_PROJECT_DIR for HOMEBREW_FORMULA_PREFIX. 
     inreplace "#{prefix}/etc/bashrc", "export WM_PROJECT_DIR=\"$projectDir\"", 
       "export WM_PROJECT_DIR=#{prefix}\n echo $WM_PROJECT_DIR"
     source_env_from("#{prefix}/etc/bashrc")
@@ -65,6 +67,18 @@ class Openfoam < Formula
     ENV['PATH'] = "#{HOMEBREW_PREFIX}/bin:" + ENV['PATH']
     system "#{prefix}/Allwmake"
     # system "cmake", ".", *std_cmake_args
+  end
+
+  def caveats
+    s = <<~EOS
+      Keg-only installation given the specific usage of the software.
+      It is not yet used as dependencies for other packages.
+      To use: 
+        source #{prefix}/etc/bashrc 
+      It may also be helpful to create a pref.sh file to modify the
+      environment. 
+      EOS
+    s
   end
 
   test do
