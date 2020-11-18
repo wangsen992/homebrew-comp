@@ -24,14 +24,46 @@ class Openfoam < Formula
   depends_on "metis" 
 
   depends_on "cmake" => :build
+  depends_on "m4" => :build
+  depends_on "flex" => :build
 
+  # NOTE: Helper scripts for sourcing the etc/bashrc file. 
+  # Read in the bash environment, after an optional command.
+  #   Returns Array of key/value pairs.
+  def bash_env(cmd=nil)
+    env = `#{cmd + ';' if cmd} printenv`
+    env.split(/\n/).map {|l| l.split(/=/)}
+  end
+
+  # Source a given file, and compare environment before and after.
+  #   Returns Hash of any keys that have changed.
+  def bash_source(file)
+    Hash[ bash_env(". #{File.realpath file}") - bash_env() ]
+  end
+
+  # Find variables changed as a result of sourcing the given file, 
+  #   and update in ENV.
+  def source_env_from(file)
+    bash_source(file).each {|k,v| ENV[k] = v }
+  end
+ 
   def install
     # ENV.deparallelize  # if your formula fails when building in parallel
     # Remove unrecognized options if warned by configure
-    system "./configure", "--disable-debug",
-                          "--disable-dependency-tracking",
-                          "--disable-silent-rules",
-                          "--prefix=#{prefix}"
+
+    # source the environment to get ready for installation
+    # NOTE: Figure out what to install into Cellar
+    # Need the header files, tutorials, executables. 
+    prefix.mkpath
+    prefix.install Dir["*"]
+    inreplace "#{prefix}/etc/bashrc", "export WM_PROJECT_DIR=\"$projectDir\"", 
+      "export WM_PROJECT_DIR=#{prefix}\n echo $WM_PROJECT_DIR"
+    source_env_from("#{prefix}/etc/bashrc")
+    # NOTE: Make sure PATH includes homebrew_bin
+    # NOTE: and include_path
+    ENV['CPATH'] = "#{HOMEBREW_PREFIX}/include"
+    ENV['PATH'] = "#{HOMEBREW_PREFIX}/bin:" + ENV['PATH']
+    system "#{prefix}/Allwmake"
     # system "cmake", ".", *std_cmake_args
   end
 
@@ -45,6 +77,8 @@ class Openfoam < Formula
     #
     # The installed folder is not in the path, so use the entire path to any
     # executables being tested: `system "#{bin}/program", "do", "something"`.
-    system "false"
+    system "source #{prefix}/etc/bashrc"
+    system "foamInstallationTest"
+    system "true"
   end
 end
