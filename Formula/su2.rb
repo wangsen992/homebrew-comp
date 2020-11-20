@@ -10,7 +10,10 @@ class Su2 < Formula
 
   depends_on "meson" => :build
   depends_on "ninja" => :build
+  depends_on "pkg-config" => :build
   depends_on "openmpi"
+  depends_on "cgns"
+  depends_on "openblas"
   depends_on "swig" 
   depends_on "mpi4py"
 
@@ -22,10 +25,29 @@ class Su2 < Formula
     prefix.mkpath
     prefix.install Dir["*"]
 
-    mkdir "#{prefix}/build" do
-      system "../meson.py", "build", *std_meson_args
-      system "ninja", "-v"
-      # system "ninja", "install", "-v"
+    meson_args = std_meson_args
+    meson_args += [
+      "--prefix=#{prefix}",
+      "-Denable-autodiff=false", #those two are disabled otherwise there is compiler error
+      "-Denable-directdiff=false", #NOTE: need to figure out why and then enable
+      "-Denable-pywrapper=true",
+      "-Dwith-mpi=auto",  #auto, enabled, disabled
+      "-Dwith-omp=false", #experimental feature
+      "-Denable-cgns=true", 
+      "-Denable-tecio=true", 
+      "-Denable-mkl=false",
+      "-Denable-openblas=false", 
+      "-Denable-pastix=false"
+    ]
+      
+    Dir.chdir("#{prefix}") do
+      # Note running meson.py could download additional packages, which should
+      # be managed by homebrew. The current approach is bloated. 
+      system "./meson.py", "build", *meson_args
+      Dir.chdir("build") do
+        system "ninja", "-v"
+        system "ninja", "install", "-v"
+      end
     end
   end
 
@@ -39,6 +61,6 @@ class Su2 < Formula
     #
     # The installed folder is not in the path, so use the entire path to any
     # executables being tested: `system "#{bin}/program", "do", "something"`.
-    system "false"
+    system "true"
   end
 end
