@@ -1,7 +1,7 @@
 # Documentation: https://docs.brew.sh/Formula-Cookbook
 #                https://rubydoc.brew.sh/Formula
 # PLEASE REMOVE ALL GENERATED COMMENTS BEFORE SUBMITTING YOUR PULL REQUEST!
-class su2 < Formula
+class Su2 < Formula
   desc "Multiphysics Simulation and Design Software"
   homepage "https://su2code.github.io/"
   url "https://api.github.com/repos/su2code/SU2/tarball/v7.0.7"
