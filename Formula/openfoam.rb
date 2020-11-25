@@ -57,15 +57,45 @@ class Openfoam < Formula
     prefix.mkpath
     prefix.install Dir["*"]
 
-    # Override WM_PROJECT_DIR for HOMEBREW_FORMULA_PREFIX. 
-    inreplace "#{prefix}/etc/bashrc", "export WM_PROJECT_DIR=\"$projectDir\"", 
-      "export WM_PROJECT_DIR=#{prefix}\n echo $WM_PROJECT_DIR"
-    source_env_from("#{prefix}/etc/bashrc")
+
+    Dir.chdir prefix do
+      # Override WM_PROJECT_DIR for HOMEBREW_FORMULA_PREFIX. 
+      inreplace "#{prefix}/etc/bashrc", "export WM_PROJECT_DIR=\"$projectDir\"", 
+        "export WM_PROJECT_DIR=#{prefix}\n echo $WM_PROJECT_DIR"
+      source_env_from("#{prefix}/etc/bashrc")
+      # Configure wmake to use -std=c++14
+      system "for file in $(grep -rl c++11 .); do sed -i s/c++11/c++14/ $file; done"
+      # Update dependency paths
+      system "bin/tools/foamConfigurePaths", 
+             "-openmpi-system",
+             "-adios-path", Formula['adios2'].prefix,
+             "-boost-path", Formula['boost'].prefix,
+             "-cgal-path", Formula['cgal'].prefix,
+             "-cmake-path", Formula['cmake'].prefix,
+             "-fftw-path", Formula['fftw'].prefix,
+             "-kahip-path", Formula['kahip'].prefix,
+             "-metis-path", Formula['metis'].prefix, 
+             "-scotch-path", Formula['brewsci-scotch'].prefix
+      
+      # gmp and mpfr setup requires special treatment
+      (prefix/"etc/prefs.sh").write <<~EOS
+        export GMP_ARCH_PATH=#{Formula['gmp'].prefix}
+        export MPFR_ARCH_PATH=#{Formula['mpfr'].prefix}
+      EOS
+      # symlink to create a lib64 dir in dependency gmp and mpfr
+      # NOTE: This is not a good approach, should have a more elegant solution
+      system "ln -s", Formula['gmp'].lib, Formula['gmp'].prefix+"64"
+      system "ln -s", Formula['mpfr'].lib, Formula['mpfr'].prefix+"64"
+      # source again to read the prefs.sh
+      source_env_from("#{prefix}/etc/bashrc")
+      system "./Allwmake -j"
+    end
+
     # NOTE: Make sure PATH includes homebrew_bin
     # NOTE: and include_path
-    ENV['CPATH'] = "#{HOMEBREW_PREFIX}/include"
-    ENV['PATH'] = "#{HOMEBREW_PREFIX}/bin:" + ENV['PATH']
-    system "#{prefix}/Allwmake -j"
+    #ENV['CPATH'] = "#{HOMEBREW_PREFIX}/include"
+    #ENV['PATH'] = "#{HOMEBREW_PREFIX}/bin:" + ENV['PATH']
+    #system "#{prefix}/Allwmake -j"
     # system "cmake", ".", *std_cmake_args
   end
 
