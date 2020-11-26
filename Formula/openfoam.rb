@@ -82,10 +82,6 @@ class Openfoam < Formula
         export GMP_ARCH_PATH=#{Formula['gmp'].prefix}
         export MPFR_ARCH_PATH=#{Formula['mpfr'].prefix}
       EOS
-      # symlink to create a lib64 dir in dependency gmp and mpfr
-      # NOTE: This is not a good approach, should have a more elegant solution
-      system "ln -s", Formula['gmp'].lib, Formula['gmp'].prefix+"64"
-      system "ln -s", Formula['mpfr'].lib, Formula['mpfr'].prefix+"64"
       # source again to read the prefs.sh
       source_env_from("#{prefix}/etc/bashrc")
       system "./Allwmake -j"
