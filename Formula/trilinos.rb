@@ -21,7 +21,9 @@ class Trilinos < Formula
   depends_on "hypre@2.10" # test if earlier versions work. 
   depends_on "boost"
   depends_on "eigen"
-  depends_on "wangsen992/comp/cgal-cxx11" #Make sure cgal in non header-only mode
+  depends_on "cgal" #Make sure cgal in non header-only mode
+  depends_on "gmp"
+  depends_on "mpfr"
   depends_on "superlu" # must specify SuperLU5 API support in cmake flags
   depends_on "brewsci/num/brewsci-scotch"
   depends_on "brewsci/num/brewsci-parmetis"
@@ -30,11 +32,14 @@ class Trilinos < Formula
     # ENV.deparallelize  # if your formula fails when building in parallel
     cmake_args = std_cmake_args
     # cgal is compiled with cxx11
+    # similar cgal issue 'enable_if_t' error: 
+    # https://stackoverflow.com/questions/58713496/error-using-libraries-provided-by-cgal-with-qt-creator
     cmake_args = cmake_args + %W[
             -DCMAKE_C_COMPILER=#{Formula['open-mpi'].bin/"mpicc"}
             -DCMAKE_CXX_COMPILER=#{Formula['open-mpi'].bin/"mpic++"}
             -DCMAKE_Fortran_COMPILER=#{Formula['open-mpi'].bin/"mpif90"}
-            -DCMAKE_CXX_STANDARD=11
+            -DCMAKE_CXX_FLAGS='-frounding-math'
+            -DCMAKE_CXX_STANDARD=14
             -DCMAKE_CXX_STANDARD_REQUIRED=ON
             -DCMAKE_CXX_EXTENSIONS=OFF
             -DCMAKE_INSTALL_PREFIX=#{prefix}
@@ -101,9 +106,9 @@ class Trilinos < Formula
             -DTPL_ENABLE_Boost=ON
             -DBoost_LIBRARY_DIRS=#{Formula['boost'].lib}
             -DTPL_ENABLE_CGAL=ON
-            -DCGAL_LIBRARY_DIRS=#{Formula['cgal-cxx11'].lib}
-            -DCGAL_INCLUDE_DIRS=#{Formula['cgal-cxx11'].include/"CGAL"}
-            -DTPL_CGAL_INCLUDE_DIRS=#{Formula['cgal-cxx11'].include/"CGAL"}
+            -DCGAL_LIBRARY_DIRS=#{Formula['cgal'].lib}
+            -DCGAL_INCLUDE_DIRS=#{Formula['cgal'].include}
+            -DTPL_CGAL_INCLUDE_DIRS="#{Formula['cgal'].include};#{Formula['gmp'].include};#{Formula['mpfr'].include}"
             -DTPL_ENABLE_Eigen=ON
             -DEigen_LIBRARY_DIRS=#{Formula['eigen'].lib}
             -DEigen_INCLUDE_DIRS=#{Formula['eigen'].include/"eigen3"}
